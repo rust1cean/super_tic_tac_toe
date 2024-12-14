@@ -5,5 +5,5 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-export const range = (size: number, offset: number): Array<number> =>
-  [...Array(size).keys()].map((i) => i + offset);
+export const range = (from: number, to: number): Array<number> =>
+  [...Array(to).keys()].map((i) => i + from);

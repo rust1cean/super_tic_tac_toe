@@ -1,4 +1,4 @@
-import Board from "@/widgets/Board";
+import Board from "@/widgets/board";
 
 export default function Game() {
   return (
