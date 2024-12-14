@@ -16,7 +16,8 @@ const animation = (
   cfg: AnimationConfig,
   particles: Array<Particle> = []
 ) => {
-  ctx.clearRect(0, 0, cfg.getWidth(), cfg.getHeight());
+  ctx.fillStyle = "rgb(0 0 0 / 0.6)";
+  ctx.fillRect(0, 0, cfg.getWidth(), cfg.getHeight());
 
   const particlesDiff = cfg.maxParticlesCount - particles.length;
 
@@ -61,9 +62,7 @@ export function BackgroundParticles({
     }
   });
 
-  return (
-    <canvas className="size-full -z-50 absolute top-0 left-0" ref={canvas} />
-  );
+  return <canvas className="absolute t-0 l-0 size-full -z-50" ref={canvas} />;
 }
 
 type Borders = {
