@@ -1,10 +1,9 @@
 import "./App.css";
 import { useState } from "react";
 import { BackgroundParticles } from "./components/background-particles";
-import { Home } from "./views/home";
-import { Game } from "./views/game";
+import { Home, Game } from "@/views";
 import { Toaster } from "@/components/ui/sonner";
-import { Header } from "./widgets/Header";
+import Header from "@/widgets/header";
 
 type View = "home" | "game";
 

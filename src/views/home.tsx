@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 
-export function Home({ OnPlaying }: { OnPlaying: () => any }) {
+export default function Home({ OnPlaying }: { OnPlaying: () => any }) {
   return (
     <div className="size-full gap-6 flex flex-col justify-center items-center">
       <h1 className="text-4xl font-black">Super Tic-Tac-Toe🎮</h1>
@@ -9,7 +9,7 @@ export function Home({ OnPlaying }: { OnPlaying: () => any }) {
           Play vs bot
         </Button>
         <Button size="lg" variant="secondary" onClick={OnPlaying}>
-          Play 1v1
+          ⚔️ Play 1 vs 1
         </Button>
       </div>
     </div>
