@@ -11,7 +11,7 @@ export default function BoardCell({
 }) {
   const SmallBoard = () => {
     return (
-      <div className="smallBoard size-full grid grid-cols-3 gap-2 grid-rows-3 ease-out duration-150 scale-75 opacity-80">
+      <div className="smallBoard size-full grid grid-cols-3 gap-2 grid-rows-3 ease-out duration-150 scale-75 opacity-40">
         {range(1, 9).map((key) => (
           <Cell key={key} index={key} />
         ))}

@@ -16,10 +16,10 @@ const animation = (
   cfg: AnimationConfig,
   particles: Array<Particle> = []
 ) => {
-  ctx.fillStyle = "rgb(0 0 0 / 0.6)";
-  ctx.fillRect(0, 0, cfg.getWidth(), cfg.getHeight());
-
   const particlesDiff = cfg.maxParticlesCount - particles.length;
+
+  ctx.fillStyle = "rgb(0 0 0 / 0.2)";
+  ctx.fillRect(0, 0, cfg.getWidth(), cfg.getHeight());
 
   // Add particles when needed
   if (particlesDiff > 0 && Math.random() > 0.5)
@@ -72,7 +72,7 @@ type Borders = {
   bottom: number;
 };
 
-const DEFAULT_PARTICLE_FILL_COLOR: string = "rgba(255, 255, 255, 0.15)";
+const DEFAULT_PARTICLE_FILL_COLOR: string = "hsl(220 60% 80% / 0.4)";
 const DEFAULT_PARTICLE_STROKE_COLOR: string = "transparent";
 
 class Particle {
@@ -103,7 +103,7 @@ class Particle {
   ) {
     this.ctx = ctx;
     this.cfg = cfg;
-    this.radius = initialRadius ?? (cfg.getWidth() + cfg.getHeight()) / 3_000;
+    this.radius = initialRadius ?? (cfg.getWidth() + cfg.getHeight()) / 2500;
     this.velocity = initialVelocity ?? this.randomVelocity();
     this.position = initialPosition ?? {
       x: cfg.getWidth() / 2,
@@ -131,8 +131,8 @@ class Particle {
 
   maxVelocity(this: Particle): Velocity {
     return {
-      x: this.cfg.getWidth() / 400,
-      y: this.cfg.getHeight() / 200,
+      x: this.cfg.getWidth() / 150,
+      y: this.cfg.getHeight() / 100,
     };
   }
 

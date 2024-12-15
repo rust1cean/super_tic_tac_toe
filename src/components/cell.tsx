@@ -9,7 +9,7 @@ export default function Cell({
 }) {
   return (
     <button
-      className={`size-full active:scale-95 relative rounded-3xl flex items-center justify-center border-2 border-border/60 hover:bg-muted/40 backdrop-blur ${className}`}
+      className={`size-full active:scale-95 relative rounded-3xl flex items-center justify-center border-2 border-border hover:bg-muted/40 backdrop-blur ${className}`}
     >
       <CellIndex
         index={index}
