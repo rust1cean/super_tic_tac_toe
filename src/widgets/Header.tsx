@@ -1,11 +1,12 @@
 import { Button } from "@/components/ui/button";
+import { mainViewState } from "@/state/main-view.state";
 import { FaGithub } from "react-icons/fa";
 import { FaHome } from "react-icons/fa";
 
 export default function Header() {
   return (
     <header className="w-full z-50 h-[8vh] bg-transparent backdrop-blur flex justify justify-between items-center px-8 py-10 gap-4">
-      <Button variant="outline">
+      <Button variant="outline" onClick={() => mainViewState.goHome()}>
         <FaHome />
         Home
       </Button>
