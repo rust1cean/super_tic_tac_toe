@@ -14,7 +14,7 @@ impl Cell {
     pub fn get_mark(&self) -> Option<Mark> {
         match self {
             Self::Simple(simple) => simple.get_mark(),
-            Self::Ultimate(ultimate) => ultimate.get_mark(),
+            Self::Ultimate(ultimate) => todo!(),
         }
     }
 

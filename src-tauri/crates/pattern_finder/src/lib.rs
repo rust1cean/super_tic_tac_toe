@@ -44,21 +44,21 @@
 //! let board = board.iter().flatten().collect::<Vec<_>>();
 //!
 //! let horizontal_pattern = PatternConstructor::new()
-//!     .chunk(3)
+//!     .chunks(3)
 //!     .pairs(|prev, curr| prev == curr);
 //!
 //! // by calling the `transposed` method
 //! // we will iterate over the columns as if they were rows,
 //! // and over the rows as if they were columns
 //! let vertical_pattern = PatternConstructor::new()
-//!     .chunk(3)
+//!     .chunks(3)
 //!     .transposed()
 //!     .pairs(|prev, curr| prev == curr);
 //!
 //! // offset at each iteration step,
 //! // iterate simultaneously from both sides
 //! let diagonal_pattern = PatternConstructor::new()
-//!     .chunk(3)
+//!     .chunks(3)
 //!     .offset_by(|i| i)
 //!     .pairs(|prev, curr| prev == curr)
 //!     .iterate_on_both_sides();
@@ -106,7 +106,7 @@ where
 
 #[derive(Clone)]
 pub struct Pattern<Item: Sync + Send + Sized + 'static> {
-    chunk: usize,
+    chunks: usize,
     on_both_sides: bool,
     offset_fn: &'static dyn Fn(usize) -> usize,
     pairs_fn: &'static dyn Fn(&[Item]) -> bool,
@@ -117,8 +117,8 @@ where
     Item: Sync + Send + Sized + 'static,
 {
     pub fn call(&self, items: &Vec<Item>) -> bool {
-        for chunk in items.chunks(self.chunk) {
-            for pair in chunk.chunks(2) {
+        for chunks in items.chunks(self.chunks) {
+            for pair in chunks.chunks(2) {
                 if (*self.pairs_fn)(pair) {
                     return true;
                 }
@@ -133,7 +133,7 @@ pub struct PatternConstructor<Item>
 where
     Item: Sync + Send + Sized + 'static,
 {
-    chunk: usize,
+    chunks: usize,
     on_both_sides: bool,
     offset_fn: Option<&'static dyn Fn(usize) -> usize>,
     pairs_fn: Option<&'static dyn Fn(&[Item]) -> bool>,
@@ -145,7 +145,7 @@ where
 {
     fn default() -> Self {
         Self {
-            chunk: 1,
+            chunks: 1,
             on_both_sides: false,
             offset_fn: None,
             pairs_fn: None,
@@ -162,14 +162,14 @@ where
         self
     }
 
-    pub fn chunk(&mut self, chunk: usize) -> &mut Self {
-        self.chunk = chunk;
+    pub fn chunks(&mut self, chunks: usize) -> &mut Self {
+        self.chunks = chunks;
         self
     }
 
     pub fn build(self) -> Pattern<Item> {
         Pattern {
-            chunk: self.chunk,
+            chunks: self.chunks,
             on_both_sides: self.on_both_sides,
             offset_fn: self.offset_fn.unwrap(),
             pairs_fn: self.pairs_fn.unwrap(),

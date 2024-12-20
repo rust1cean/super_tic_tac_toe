@@ -1,5 +1,6 @@
 use crate::{mark::Mark, simple_cel::SimpleCell, utils::create_array};
 
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Board {
     cells: [SimpleCell; 9],
 }

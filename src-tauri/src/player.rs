@@ -1,4 +1,4 @@
-use crate::cell::Mark;
+use crate::mark::Mark;
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
 pub struct Player {
