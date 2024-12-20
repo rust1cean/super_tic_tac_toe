@@ -1,0 +1,1 @@
+searchState.loadedDescShard("pattern_finder", 0, "Example on tic-tac-toe\nReturns the argument unchanged.\nCalls <code>U::from(self)</code>.")
