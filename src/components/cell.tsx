@@ -2,18 +2,25 @@ import MarkedCell, { type MarkedAs } from "./marked-cell";
 
 export default function Cell({
   index,
-  markedAs,
+  marked,
+  onSelect,
   className = "",
 }: {
   index: number;
-  markedAs: MarkedAs;
+  marked: MarkedAs;
+  onSelect: (index: number) => any;
   className?: string;
 }) {
+  const onClick = () => {
+    onSelect(index)
+  }
+
   return (
     <button
-      className={`size-full active:scale-95 relative rounded-3xl flex items-center justify-center border-2 border-border hover:bg-muted/40 backdrop-blur ${className}`}
+      onClick={onClick}
+      className={`size-full active:scale-95 relative rounded-2xl flex items-center justify-center border-[2px] border-border hover:bg-muted/40 backdrop-blur ${className}`}
     >
-      <MarkedCell index={index} markedAs={markedAs} />
+      <MarkedCell index={index} markedAs={marked} />
     </button>
   );
 }

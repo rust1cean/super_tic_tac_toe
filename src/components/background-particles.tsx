@@ -35,7 +35,7 @@ const animation = (
 export function BackgroundParticles({
   getWidth = () => document.documentElement.clientWidth,
   getHeight = () => document.documentElement.clientHeight,
-  maxParticlesCount = 100,
+  maxParticlesCount = 50,
 }: Partial<AnimationConfig>) {
   const canvas = useRef<HTMLCanvasElement | null>(null);
 
@@ -72,7 +72,7 @@ type Borders = {
   bottom: number;
 };
 
-const DEFAULT_PARTICLE_FILL_COLOR: string = "hsl(220 60% 80% / 0.4)";
+const DEFAULT_PARTICLE_FILL_COLOR: string = "hsl(220 60% 80% / 0.3)";
 const DEFAULT_PARTICLE_STROKE_COLOR: string = "transparent";
 
 class Particle {
@@ -173,7 +173,7 @@ class Particle {
     this.position.x += this.velocity.x;
     this.position.y += this.velocity.y;
 
-    this.radius += Math.sqrt(this.radius) / 100;
+    this.radius += Math.sqrt(this.radius) / 500;
   }
 
   randomVelocity(this: Particle): Velocity {
