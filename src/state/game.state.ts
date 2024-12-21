@@ -47,7 +47,6 @@ export type gameState = {
   switchTurn: () => any;
   getCell: (x: number, y: number) => any;
   tryMarkCell: (x: number, y: number) => any;
-  checkDominant: () => Promise<any>;
 }
 
 export function createGameState() {
@@ -64,9 +63,6 @@ export function createGameState() {
     getCell(x: number, y: number) {
       return this.board[y].children[x]
     },
-    async checkDominant() {
-      const cells = this.getCurrUlti.children
-    },
     tryMarkCell(x: number, y: number) {
       const exists = y in this.board && x in this.board[y].children
       const marked = (this.board as any)[y].children[x].marked.length > 0
@@ -76,7 +72,6 @@ export function createGameState() {
         this.currUltiIdx = x;
         (this.board as any)[y].children[x].marked = this.turn
         this.switchTurn()
-        this.checkDominant()
       }
     }
   });
