@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { gameState, type PlayerTurn } from "@/state/game.state";
 import { mainViewState } from "@/state/main-view.state";
-import { autorun, set } from "mobx";
+import { autorun } from "mobx";
 import { observer } from "mobx-react-lite";
 import { useState } from "react";
 import { FaGithub } from "react-icons/fa";
