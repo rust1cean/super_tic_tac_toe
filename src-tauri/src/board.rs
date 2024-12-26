@@ -1,11 +1,13 @@
 use crate::{mark::Mark, simple_cel::SimpleCell, utils::create_array};
 
 // TODO: Impl From<T> for Board struct.
+// TODO: Add offset for LikeSquareIndexedTable
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Board<const LEN: usize = 9, const SEP: usize = 3> {
     cells: [SimpleCell; LEN],
     marked_cells: [Option<Mark>; LEN],
+    winner: Option<Winner<Mark>>,
 }
 
 impl<const LEN: usize, const SEP: usize> Default for Board<LEN, SEP> {
@@ -13,6 +15,7 @@ impl<const LEN: usize, const SEP: usize> Default for Board<LEN, SEP> {
         Self {
             cells: create_array(|id| SimpleCell::new(id)),
             marked_cells: [None; LEN],
+            winner: None,
         }
     }
 }
@@ -21,6 +24,18 @@ impl<const LEN: usize, const SEP: usize> Board<LEN, SEP> {
     pub fn mark_cell(&mut self, cell_id: usize, mark_as: Mark) -> &mut Self {
         self.marked_cells[cell_id] = Some(mark_as);
         self
+    }
+
+    pub fn determine_winner(&mut self) -> Option<Winner<Mark>> {
+        if let None = self.winner {
+            self.winner = self.choose_winner();
+        }
+
+        self.get_winner()
+    }
+
+    pub fn get_winner(&self) -> Option<Winner<Mark>> {
+        self.winner.clone()
     }
 
     pub fn choose_winner(&self) -> Option<Winner<Mark>> {
@@ -245,7 +260,7 @@ impl<const LEN: usize, const SEP: usize> LikeSquareIndexedTable<LEN, SEP> {
     /// Example of a 3x3 table where the indices are sorted by rows
     ///
     /// ```
-    /// use super_tic_tac_toe_lib::board::LikeSquareIndexedTable;
+    /// use tic_tac_toe_ultimate_lib::board::LikeSquareIndexedTable;
     ///
     /// let row_indices = LikeSquareIndexedTable::<9, 3>.as_row_indices();
     ///
@@ -279,7 +294,7 @@ impl<const LEN: usize, const SEP: usize> LikeSquareIndexedTable<LEN, SEP> {
     /// Example of a 3x3 table where the indices are sorted by columns
     ///
     /// ```
-    /// use super_tic_tac_toe_lib::board::LikeSquareIndexedTable;
+    /// use tic_tac_toe_ultimate_lib::board::LikeSquareIndexedTable;
     ///
     /// let column_indices = LikeSquareIndexedTable::<9, 3>.as_column_indices();
     ///
@@ -308,7 +323,7 @@ impl<const LEN: usize, const SEP: usize> LikeSquareIndexedTable<LEN, SEP> {
     /// Example of a 3x3 table where the indices are sorted by diagonals
     ///
     /// ```
-    /// use super_tic_tac_toe_lib::board::LikeSquareIndexedTable;
+    /// use tic_tac_toe_ultimate_lib::board::LikeSquareIndexedTable;
     ///
     /// let diagonal_indices = LikeSquareIndexedTable::<9, 3>.as_diagonal_indices();
     ///

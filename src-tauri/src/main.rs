@@ -2,5 +2,5 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
 fn main() {
-    super_tic_tac_toe_lib::run()
+    tic_tac_toe_ultimate_lib::run()
 }

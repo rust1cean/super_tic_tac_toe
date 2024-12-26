@@ -1,4 +1,0 @@
-var searchIndex = new Map(JSON.parse('[["pattern_finder",{"t":"FNNNNNNN","n":["PatternFinder","borrow","borrow_mut","from","into","try_from","try_into","type_id"],"q":[[0,"pattern_finder"],[8,"core::result"],[9,"core::any"]],"i":"`j000000","f":"`{b{{b{c}}}{}}{{{b{d}}}{{b{dc}}}{}}{cc{}}{{}c{}}{c{{f{e}}}{}{}}{{}{{f{c}}}{}}{bh}","D":"f","p":[[1,"reference"],[0,"mut"],[6,"Result",8],[5,"TypeId",9],[5,"PatternFinder",0]],"r":[],"b":[],"c":"OjAAAAAAAAA=","e":"OzAAAAEAAAUAAgABAAIABgACAA=="}]]'));
-if (typeof exports !== 'undefined') exports.searchIndex = searchIndex;
-else if (window.initSearch) window.initSearch(searchIndex);
-//{"start":39,"fragment_lengths":[450]}

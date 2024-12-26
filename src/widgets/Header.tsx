@@ -24,7 +24,7 @@ export default function Header() {
 
       {mainViewState.isGame && <Turn turn={turn} />}
 
-      <a target="_blank" href="https://github.com/rust1cean/super_tic_tac_toe">
+      <a target="_blank" href="https://github.com/rust1cean/tic_tac_toe_ultimate">
         <label className="flex gap-4 items-center cursor-pointer">
           <strong>@rust1cean</strong>
           <FaGithub size="32" />
