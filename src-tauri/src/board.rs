@@ -1,5 +1,7 @@
 use crate::{mark::Mark, simple_cel::SimpleCell, utils::create_array};
 
+// TODO: Impl From<T> for Board struct.
+
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Board<const LEN: usize = 9, const SEP: usize = 3> {
     cells: [SimpleCell; LEN],
@@ -35,7 +37,7 @@ impl<const LEN: usize, const SEP: usize> Board<LEN, SEP> {
         })
     }
 
-    /// Search for a row pattern
+    /// **Search for a row pattern**
     ///
     /// |   |   |   |
     /// |---|---|---|
@@ -43,15 +45,15 @@ impl<const LEN: usize, const SEP: usize> Board<LEN, SEP> {
     /// | X | X | X |
     /// | O | X | O |
     pub fn try_find_row_by_pattern(&self) -> Option<Winner<Vec<Mark>>> {
-        LikeSquareIndexedTable::<LEN, SEP>
-            .as_row_indices()
-            .indices_to_values(&self.marked_cells)
+        let indices = LikeSquareIndexedTable::<LEN, SEP>.as_row_indices();
+
+        Vec2DIndices::indices_to_values(indices, &self.marked_cells)
             .into_iter()
             .find_map(Self::is_all_eq)
             .and_then(|marks| Some(Winner::ByRow(marks)))
     }
 
-    /// Search for a column pattern
+    /// **Search for a column pattern**
     ///
     /// |   |   |   |
     /// |---|---|---|
@@ -59,21 +61,25 @@ impl<const LEN: usize, const SEP: usize> Board<LEN, SEP> {
     /// | X | X | O |
     /// | O | X | O |
     pub fn try_find_column_by_pattern(&self) -> Option<Winner<Vec<Mark>>> {
-        LikeSquareIndexedTable::<LEN, SEP>
-            .as_column_indices()
-            .indices_to_values(&self.marked_cells)
+        let indices = LikeSquareIndexedTable::<LEN, SEP>.as_column_indices();
+
+        Vec2DIndices::indices_to_values(indices, &self.marked_cells)
             .into_iter()
             .find_map(Self::is_all_eq)
             .and_then(|marks| Some(Winner::ByColumn(marks)))
     }
 
-    /// Search for a diagonal pattern
+    /// **Search for a diagonal pattern**
+    ///
+    /// Main diaogonal
     ///
     /// |   |   |   |
     /// |---|---|---|
     /// | X | O | O |
     /// | O | X | O |
     /// | O | O | X |
+    ///
+    /// Secondary diagonal
     ///
     /// |   |   |   |
     /// |---|---|---|
@@ -81,9 +87,9 @@ impl<const LEN: usize, const SEP: usize> Board<LEN, SEP> {
     /// | O | X | O |
     /// | X | O | O |
     pub fn try_find_diagonal_by_pattern(&self) -> Option<Winner<Vec<Mark>>> {
-        LikeSquareIndexedTable::<LEN, SEP>
-            .as_diagonal_indices()
-            .indices_to_values(&self.marked_cells)
+        let indices = LikeSquareIndexedTable::<LEN, SEP>.as_diagonal_indices();
+
+        Vec2DIndices::indices_to_values(indices, &self.marked_cells)
             .into_iter()
             .find_map(Self::is_all_eq)
             .and_then(|marks| Some(Winner::ByDiagonal(marks)))
@@ -232,33 +238,105 @@ mod board_tests {
     }
 }
 
+/// Represents an array of indices as a two-dimensional square table
 pub struct LikeSquareIndexedTable<const LEN: usize, const SEP: usize>;
 
 impl<const LEN: usize, const SEP: usize> LikeSquareIndexedTable<LEN, SEP> {
-    pub fn as_row_indices(&self) -> Vec2DIndices {
-        Vec2DIndices(
-            (0..SEP)
-                .into_iter()
-                .map(|i| {
-                    (0..SEP)
-                        .into_iter()
-                        .map(move |j| i * SEP + j)
-                        .collect::<Vec<_>>()
-                })
-                .collect::<Vec<_>>(),
-        )
+    /// Example of a 3x3 table where the indices are sorted by rows
+    ///
+    /// ```
+    /// use super_tic_tac_toe_lib::board::LikeSquareIndexedTable;
+    ///
+    /// let row_indices = LikeSquareIndexedTable::<9, 3>.as_row_indices();
+    ///
+    /// assert_eq!(
+    ///     Vec::from([
+    ///         vec![0, 1, 2],
+    ///         vec![3, 4, 5],
+    ///         vec![6, 7, 8],
+    ///     ]),
+    ///     row_indices
+    /// );
+    /// ```
+    ///
+    /// |   |   |   |
+    /// |---|---|---|
+    /// | 0 | 1 | 2 |
+    /// | 3 | 4 | 5 |
+    /// | 6 | 7 | 8 |
+    pub fn as_row_indices(&self) -> Vec<Vec<usize>> {
+        (0..SEP)
+            .into_iter()
+            .map(|i| {
+                (0..SEP)
+                    .into_iter()
+                    .map(move |j| i * SEP + j)
+                    .collect::<Vec<_>>()
+            })
+            .collect::<Vec<_>>()
     }
 
-    pub fn as_column_indices(&self) -> Vec2DIndices {
-        Vec2DIndices(
-            (0..SEP)
-                .into_iter()
-                .map(|i| (i..LEN).into_iter().step_by(SEP).collect::<Vec<_>>())
-                .collect::<Vec<_>>(),
-        )
+    /// Example of a 3x3 table where the indices are sorted by columns
+    ///
+    /// ```
+    /// use super_tic_tac_toe_lib::board::LikeSquareIndexedTable;
+    ///
+    /// let column_indices = LikeSquareIndexedTable::<9, 3>.as_column_indices();
+    ///
+    /// assert_eq!(
+    ///     Vec::from([
+    ///         vec![0, 3, 6],
+    ///         vec![1, 4, 7],
+    ///         vec![2, 5, 8],
+    ///     ]),
+    ///     column_indices
+    /// );
+    /// ```
+    ///
+    /// |   |   |   |
+    /// |---|---|---|
+    /// | 0 | 3 | 6 |
+    /// | 1 | 4 | 7 |
+    /// | 2 | 5 | 8 |
+    pub fn as_column_indices(&self) -> Vec<Vec<usize>> {
+        (0..SEP)
+            .into_iter()
+            .map(|i| (i..LEN).into_iter().step_by(SEP).collect::<Vec<_>>())
+            .collect::<Vec<_>>()
     }
 
-    pub fn as_diagonal_indices(&self) -> Vec2DIndices {
+    /// Example of a 3x3 table where the indices are sorted by diagonals
+    ///
+    /// ```
+    /// use super_tic_tac_toe_lib::board::LikeSquareIndexedTable;
+    ///
+    /// let diagonal_indices = LikeSquareIndexedTable::<9, 3>.as_diagonal_indices();
+    ///
+    /// assert_eq!(
+    ///     Vec::from([
+    ///         vec![0, 4, 8],
+    ///         vec![2, 4, 6]
+    ///     ]),
+    ///     diagonal_indices
+    /// );
+    /// ```
+    ///
+    /// Main diagonal
+    ///
+    /// |   |   |   |
+    /// |---|---|---|
+    /// | 0 | - | - |
+    /// | - | 4 | - |
+    /// | - | - | 8 |
+    ///
+    /// Secondary diagonal
+    ///
+    /// |   |   |   |
+    /// |---|---|---|
+    /// | - | - | 2 |
+    /// | - | 4 | - |
+    /// | 6 | - | - |
+    pub fn as_diagonal_indices(&self) -> Vec<Vec<usize>> {
         let (main_diagonal, second_diagonal): (Vec<_>, Vec<_>) = (0..LEN)
             .into_iter()
             .step_by(SEP)
@@ -272,7 +350,7 @@ impl<const LEN: usize, const SEP: usize> LikeSquareIndexedTable<LEN, SEP> {
             .into_iter()
             .unzip();
 
-        Vec2DIndices(vec![main_diagonal, second_diagonal])
+        vec![main_diagonal, second_diagonal]
     }
 }
 
@@ -282,11 +360,11 @@ mod like_square_indexed_table_tests {
 
     #[test]
     fn check_row_indices() {
-        let expected_output = Vec2DIndices(Vec::from([
+        let expected_output = Vec::from([
             Vec::from([0, 1, 2]),
             Vec::from([3, 4, 5]),
             Vec::from([6, 7, 8]),
-        ]));
+        ]);
 
         assert_eq!(
             expected_output,
@@ -296,11 +374,11 @@ mod like_square_indexed_table_tests {
 
     #[test]
     fn check_column_indices() {
-        let expected_output = Vec2DIndices(Vec::from([
+        let expected_output = Vec::from([
             Vec::from([0, 3, 6]),
             Vec::from([1, 4, 7]),
             Vec::from([2, 5, 8]),
-        ]));
+        ]);
 
         assert_eq!(
             expected_output,
@@ -313,10 +391,7 @@ mod like_square_indexed_table_tests {
         let expected_main_diagonal = Vec::from([0, 4, 8]);
         let expected_secondary_diagonal = Vec::from([2, 4, 6]);
 
-        let expected_output = Vec2DIndices(Vec::from([
-            expected_main_diagonal,
-            expected_secondary_diagonal,
-        ]));
+        let expected_output = Vec::from([expected_main_diagonal, expected_secondary_diagonal]);
 
         assert_eq!(
             expected_output,
@@ -326,15 +401,18 @@ mod like_square_indexed_table_tests {
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Default)]
-pub struct Vec2DIndices(Vec<Vec<usize>>);
+pub struct Vec2DIndices;
 
 impl Vec2DIndices {
     /// # Safety
     ///
     /// The caller must ensure that all indices correspond to array fields,
     /// otherwise the index will be outside the range of values ​​accepted by the array.
-    pub fn indices_to_values<'a, T: Clone + Copy>(self, array: &'a [T]) -> Vec<Vec<T>> {
-        self.0
+    pub fn indices_to_values<'a, T: Clone + Copy>(
+        indices: Vec<Vec<usize>>,
+        array: &'a [T],
+    ) -> Vec<Vec<T>> {
+        indices
             .into_iter()
             .map(|indices| {
                 indices
