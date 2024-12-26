@@ -13,7 +13,7 @@ impl Cell {
 
     pub fn get_mark(&self) -> Option<Mark> {
         match self {
-            Self::Simple(simple) => simple.get_mark(),
+            Self::Simple(simple) => todo!(),
             Self::Ultimate(ultimate) => todo!(),
         }
     }

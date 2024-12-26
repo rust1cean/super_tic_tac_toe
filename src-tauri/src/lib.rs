@@ -3,8 +3,8 @@ pub mod bot;
 pub mod cell;
 pub mod mark;
 pub mod player;
-mod simple_cel;
-mod ultimate_cell;
+pub mod simple_cel;
+pub mod ultimate_cell;
 pub mod utils;
 
 // Learn more about Tauri commands at https://tauri.app/develop/calling-rust/
