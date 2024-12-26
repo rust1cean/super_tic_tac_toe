@@ -3,7 +3,7 @@ pub mod bot;
 pub mod cell;
 pub mod mark;
 pub mod player;
-pub mod simple_cel;
+pub mod simple_cell;
 pub mod ultimate_cell;
 pub mod utils;
 

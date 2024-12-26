@@ -1,33 +1,26 @@
-use crate::{mark::Mark, simple_cel::SimpleCell, ultimate_cell::UltimateCell};
+use crate::{mark::Mark, simple_cell::LikeCell, ultimate_cell::UltimateCell};
 
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub enum Cell {
-    Simple(SimpleCell),
-    Ultimate(UltimateCell),
+pub struct Cell<LC: LikeCell> {
+    lc: LC,
 }
 
-impl Cell {
-    pub fn new_simple(id: usize) -> Self {
-        Self::Simple(SimpleCell::new(id))
+impl<LC: LikeCell> Cell<LC> {
+    pub fn new(id: usize) -> Self {
+        Self { lc: LC::new(id) }
     }
 
+    pub fn id(&self) -> usize {
+        self.lc.id()
+    }
+}
+
+impl Cell<UltimateCell> {
     pub fn get_mark(&self) -> Option<Mark> {
-        match self {
-            Self::Simple(simple) => todo!(),
-            Self::Ultimate(ultimate) => todo!(),
-        }
-    }
-
-    pub fn is_simple(cell: &Self) -> bool {
-        matches!(cell, Self::Simple(_))
-    }
-
-    pub fn is_ultimate(cell: &Self) -> bool {
-        matches!(cell, Self::Ultimate(_))
+        todo!()
     }
 }
 
 #[cfg(test)]
-mod cell_tests {
+mod tests {
     use super::*;
 }

@@ -1,26 +1,35 @@
-use crate::{mark::Mark, simple_cel::SimpleCell, utils::create_array};
+use crate::{mark::Mark, simple_cell::LikeCell, utils::create_array};
 
 // TODO: Impl From<T> for Board struct.
 // TODO: Add offset for LikeSquareIndexedTable
 
 #[derive(Debug, Clone, PartialEq, Eq)]
-pub struct Board<const LEN: usize = 9, const SEP: usize = 3> {
-    cells: [SimpleCell; LEN],
+pub struct Board<LC, const LEN: usize = 9, const SEP: usize = 3>
+where
+    LC: LikeCell,
+{
+    cells: [LC; LEN],
     marked_cells: [Option<Mark>; LEN],
     winner: Option<Winner<Mark>>,
 }
 
-impl<const LEN: usize, const SEP: usize> Default for Board<LEN, SEP> {
+impl<LC, const LEN: usize, const SEP: usize> Default for Board<LC, LEN, SEP>
+where
+    LC: LikeCell,
+{
     fn default() -> Self {
         Self {
-            cells: create_array(|id| SimpleCell::new(id)),
+            cells: create_array(|id| LC::new(id)),
             marked_cells: [None; LEN],
             winner: None,
         }
     }
 }
 
-impl<const LEN: usize, const SEP: usize> Board<LEN, SEP> {
+impl<LC, const LEN: usize, const SEP: usize> Board<LC, LEN, SEP>
+where
+    LC: LikeCell,
+{
     pub fn mark_cell(&mut self, cell_id: usize, mark_as: Mark) -> &mut Self {
         self.marked_cells[cell_id] = Some(mark_as);
         self
@@ -140,10 +149,11 @@ mod board_tests {
 
     mod choose_winner {
         use super::*;
+        use crate::simple_cell::SimpleCell;
 
         #[test]
         fn there_is_no_winner() {
-            let mut board = Board::<9, 3>::default();
+            let mut board = Board::<SimpleCell, 9, 3>::default();
 
             board
                 .mark_cell(0, Mark::O)
@@ -165,7 +175,7 @@ mod board_tests {
 
         #[test]
         fn winner_by_row() {
-            let mut board = Board::<9, 3>::default();
+            let mut board = Board::<SimpleCell, 9, 3>::default();
 
             board
                 .mark_cell(0, Mark::O)
@@ -187,7 +197,7 @@ mod board_tests {
 
         #[test]
         fn winner_by_column() {
-            let mut board = Board::<9, 3>::default();
+            let mut board = Board::<SimpleCell, 9, 3>::default();
 
             board
                 .mark_cell(0, Mark::O)
@@ -209,7 +219,7 @@ mod board_tests {
 
         #[test]
         fn winner_by_main_diagonal() {
-            let mut board = Board::<9, 3>::default();
+            let mut board = Board::<SimpleCell, 9, 3>::default();
 
             board
                 .mark_cell(0, Mark::O)
@@ -231,7 +241,7 @@ mod board_tests {
 
         #[test]
         fn winner_by_secondary_diagonal() {
-            let mut board = Board::<9, 3>::default();
+            let mut board = Board::<SimpleCell, 9, 3>::default();
 
             board
                 .mark_cell(0, Mark::X)
