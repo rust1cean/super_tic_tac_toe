@@ -1,13 +1,13 @@
-export type MarkedAs = "o" | "x" | "O" | "X" | "";
+import type { Mark } from "@/state/game.state";
 
 export default function CellBelongs({
   index,
-  markedAs = "",
+  markedAs = null,
   className = "",
   textClassName = "",
 }: {
   index: number;
-  markedAs: MarkedAs;
+  markedAs: Mark;
   className?: string;
   textClassName?: string;
 }) {
@@ -17,7 +17,7 @@ export default function CellBelongs({
         } ${className}`}
     >
       <strong className={`text-xl font-thin ${textClassName}`}>
-        {markedAs.toUpperCase() || index}
+        {markedAs?.toUpperCase() || index}
       </strong>
     </div>
   );

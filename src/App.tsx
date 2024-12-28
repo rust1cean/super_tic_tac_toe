@@ -3,13 +3,13 @@ import { observer } from "mobx-react-lite";
 import { BackgroundParticles } from "./components/background-particles";
 import { Home, Game } from "@/views";
 import { Toaster } from "@/components/ui/sonner";
-import { mainViewState, type MainViewState } from "./state/main-view.state";
+import { viewState, type ViewState } from "./state/view.state";
 import Header from "@/widgets/header";
 
 function App() {
   const Content = observer(
-    ({ mainViewState }: { mainViewState: MainViewState }) => {
-      switch (mainViewState.mainView) {
+    ({ viewState }: { viewState: ViewState }) => {
+      switch (viewState.mainView) {
         case "game":
           return <Game />;
         default:
@@ -23,7 +23,7 @@ function App() {
       <BackgroundParticles />
       <Header />
       <div className="select-none size-full">
-        <Content mainViewState={mainViewState} />
+        <Content viewState={viewState} />
       </div>
       <Toaster />
     </main>

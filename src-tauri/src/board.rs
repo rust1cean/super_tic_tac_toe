@@ -1,41 +1,75 @@
-use crate::{mark::Mark, simple_cell::LikeCell, utils::create_array};
+use serde::{Deserialize, Serialize};
+
+use crate::cell::marked_cell::MarkedCell;
+use crate::cell::prelude::{SimpleCell, UltimateCell};
+use crate::cell::LikeCell;
+use crate::utils::Id;
+use crate::{mark::Mark, utils::create_array};
 
 // TODO: Impl From<T> for Board struct.
 // TODO: Add offset for LikeSquareIndexedTable
 
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize)]
 pub struct Board<LC, const LEN: usize = 9, const SEP: usize = 3>
 where
     LC: LikeCell,
+    [LC; LEN]: Serialize,
 {
     cells: [LC; LEN],
-    marked_cells: [Option<Mark>; LEN],
+    marked_cells: Vec<MarkedCell>,
     winner: Option<Winner<Mark>>,
 }
 
 impl<LC, const LEN: usize, const SEP: usize> Default for Board<LC, LEN, SEP>
 where
     LC: LikeCell,
+    [LC; LEN]: Serialize,
 {
     fn default() -> Self {
         Self {
             cells: create_array(|id| LC::new(id)),
-            marked_cells: [None; LEN],
+            marked_cells: Vec::new(),
             winner: None,
         }
+    }
+}
+
+impl<const LEN: usize, const SEP: usize> Board<UltimateCell<SimpleCell>, LEN, SEP>
+where
+    [UltimateCell<SimpleCell>; LEN]: Serialize,
+{
+    pub fn mark_nested(&mut self, ultimate_cell_id: Id, cell_id: Id, mark_as: Mark) -> &mut Self {
+        self.cells[ultimate_cell_id].mark_cell(cell_id, mark_as);
+        self
     }
 }
 
 impl<LC, const LEN: usize, const SEP: usize> Board<LC, LEN, SEP>
 where
     LC: LikeCell,
+    [LC; LEN]: Serialize,
 {
-    pub fn mark_cell(&mut self, cell_id: usize, mark_as: Mark) -> &mut Self {
-        self.marked_cells[cell_id] = Some(mark_as);
+    pub fn cells_count(&self) -> usize {
+        self.cells.len()
+    }
+
+    pub fn marked_cells_count(&self) -> usize {
+        self.marked_cells.len()
+    }
+
+    pub fn unmarked_cells_count(&self) -> usize {
+        LEN - self.marked_cells_count()
+    }
+
+    pub fn mark_cell(&mut self, cell_id: Id, mark_as: Mark) -> &mut Self {
+        self.winner.is_none().then(|| {
+            self.marked_cells
+                .push(MarkedCell::new_marked(cell_id, mark_as));
+        });
         self
     }
 
-    pub fn determine_winner(&mut self) -> Option<Winner<Mark>> {
+    pub fn try_determine_winner(&mut self) -> Option<Winner<Mark>> {
         if let None = self.winner {
             self.winner = self.choose_winner();
         }
@@ -44,7 +78,7 @@ where
     }
 
     pub fn get_winner(&self) -> Option<Winner<Mark>> {
-        self.winner.clone()
+        self.winner
     }
 
     pub fn choose_winner(&self) -> Option<Winner<Mark>> {
@@ -61,13 +95,13 @@ where
         })
     }
 
-    /// **Search for a row pattern**
+    /// Search for a row pattern
     ///
     /// |   |   |   |
     /// |---|---|---|
-    /// | O | O | X |
-    /// | X | X | X |
-    /// | O | X | O |
+    /// | o | o | x |
+    /// | x | x | x |
+    /// | o | x | o |
     pub fn try_find_row_by_pattern(&self) -> Option<Winner<Vec<Mark>>> {
         let indices = LikeSquareIndexedTable::<LEN, SEP>.as_row_indices();
 
@@ -77,13 +111,13 @@ where
             .and_then(|marks| Some(Winner::ByRow(marks)))
     }
 
-    /// **Search for a column pattern**
+    /// Search for a column pattern
     ///
     /// |   |   |   |
     /// |---|---|---|
-    /// | O | X | X |
-    /// | X | X | O |
-    /// | O | X | O |
+    /// | o | x | x |
+    /// | x | x | o |
+    /// | o | x | o |
     pub fn try_find_column_by_pattern(&self) -> Option<Winner<Vec<Mark>>> {
         let indices = LikeSquareIndexedTable::<LEN, SEP>.as_column_indices();
 
@@ -93,23 +127,23 @@ where
             .and_then(|marks| Some(Winner::ByColumn(marks)))
     }
 
-    /// **Search for a diagonal pattern**
+    /// Search for a diagonal pattern
     ///
     /// Main diaogonal
     ///
     /// |   |   |   |
     /// |---|---|---|
-    /// | X | O | O |
-    /// | O | X | O |
-    /// | O | O | X |
+    /// | x | o | o |
+    /// | o | x | o |
+    /// | o | o | x |
     ///
     /// Secondary diagonal
     ///
     /// |   |   |   |
     /// |---|---|---|
-    /// | O | O | X |
-    /// | O | X | O |
-    /// | X | O | O |
+    /// | o | o | x |
+    /// | o | x | o |
+    /// | x | o | o |
     pub fn try_find_diagonal_by_pattern(&self) -> Option<Winner<Vec<Mark>>> {
         let indices = LikeSquareIndexedTable::<LEN, SEP>.as_diagonal_indices();
 
@@ -119,20 +153,24 @@ where
             .and_then(|marks| Some(Winner::ByDiagonal(marks)))
     }
 
-    pub fn is_all_eq(marks: Vec<Option<Mark>>) -> Option<Vec<Mark>> {
-        marks
-            .iter()
-            .cloned()
-            .collect::<Option<Vec<_>>>()
-            .into_iter()
-            .find(|marks| {
+    pub fn is_all_eq(marked_cells: Vec<MarkedCell>) -> Option<Vec<Mark>> {
+        (marked_cells.len() >= SEP)
+            .then(|| {
+                let marks = marked_cells
+                    .into_iter()
+                    .map(|cell| cell.get_mark_unwrapped())
+                    .collect::<Vec<_>>();
+
                 let first = marks[0];
-                marks.eq(&[first.clone(); SEP])
+                let len = marks.len();
+
+                marks.eq(&vec![first; len]).then_some(marks)
             })
+            .flatten()
     }
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub enum Winner<T>
 where
     T: Sized + core::fmt::Debug,
@@ -142,6 +180,19 @@ where
     ByDiagonal(T),
 }
 
+impl<T> Winner<T>
+where
+    T: Sized + core::fmt::Debug,
+{
+    pub fn unwrap(self) -> T {
+        match self {
+            Self::ByRow(value) => value,
+            Self::ByColumn(value) => value,
+            Self::ByDiagonal(value) => value,
+        }
+    }
+}
+
 #[cfg(test)]
 mod board_tests {
     use super::*;
@@ -149,7 +200,7 @@ mod board_tests {
 
     mod choose_winner {
         use super::*;
-        use crate::simple_cell::SimpleCell;
+        use crate::cell::simple_cell::SimpleCell;
 
         #[test]
         fn there_is_no_winner() {

@@ -1,4 +1,5 @@
-import MarkedCell, { type MarkedAs } from "./marked-cell";
+import type { Mark } from "@/state/game.state";
+import MarkedCell from "./marked-cell";
 
 export default function Cell({
   index,
@@ -7,7 +8,7 @@ export default function Cell({
   className = "",
 }: {
   index: number;
-  marked: MarkedAs;
+  marked: Mark;
   onSelect: (index: number) => any;
   className?: string;
 }) {
