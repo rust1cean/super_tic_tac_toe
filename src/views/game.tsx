@@ -1,4 +1,3 @@
-import { gameState } from "@/state/game.state";
 import { Board } from "@/widgets/board";
 
 export default function Game() {

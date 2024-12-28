@@ -1,19 +1,14 @@
-import { autorun, makeAutoObservable } from "mobx";
+import { makeAutoObservable } from "mobx";
 
 export type Board<LikeCell> = {
   cells: LikeCell[]
-  marked_cells: IMarkedCell[]
+  marked_cells: Mark[]
   winner: Mark
 }
 
 export type IUltimateCell = {
   id: Id,
   board: Board<ICell>
-}
-
-export type IMarkedCell = {
-  id: Id,
-  mark: Mark
 }
 
 export type ICell = {
@@ -33,6 +28,7 @@ export class GameState {
   enemy: PlayerKind | null = null;
   turn: Mark = null;
   board: Board<IUltimateCell> = {} as any;
+  currentUltimateCellId: Id | null = null;
 
   constructor() {
     makeAutoObservable(this)
@@ -54,21 +50,29 @@ export class GameState {
     this.turn = newTurn
   }
 
+  setCurrentUltimateCellId(id: Id) {
+    this.currentUltimateCellId = id
+  }
+
   markCell(ultiCellId: Id, cellId: Id, mark: Mark) {
     const ultimateCell = this.board.cells[ultiCellId];
     const marked_cells = ultimateCell.board.marked_cells
 
     this.board.cells[ultiCellId] = {
-      ...ultimateCell,
+      ...this.board.cells[ultiCellId],
       board: {
         ...ultimateCell.board,
-        marked_cells: [...marked_cells, {
-          id: cellId,
-          mark
-        }]
+        marked_cells: marked_cells.map((value: any, id: any) => id === cellId ? mark : value)
       }
     }
+  }
 
+  tryDetermineWinner({ ultimateCellId, winner }: { ultimateCellId: Id, winner: Mark }) {
+    this.board.marked_cells[ultimateCellId] = winner
+  }
+
+  determineWinner({ winner }: { winner: Mark }) {
+    alert(`The winner: ${winner}`)
   }
 }
 

@@ -20,7 +20,9 @@ pub fn run() {
         .invoke_handler(tauri::generate_handler![
             commands::play_vs_bot,
             commands::mark_cell,
-            commands::reset
+            commands::reset,
+            commands::try_determine_winner,
+            commands::determine_winner
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

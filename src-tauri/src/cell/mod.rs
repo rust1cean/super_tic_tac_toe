@@ -12,7 +12,7 @@ pub mod prelude {
     pub use ultimate_cell::UltimateCell;
 }
 
-pub trait LikeCell {
+pub trait LikeCell: core::fmt::Debug + Clone {
     fn new(id: Id) -> Self;
     fn id(&self) -> Id;
 }

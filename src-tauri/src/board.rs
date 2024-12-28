@@ -1,6 +1,5 @@
 use serde::{Deserialize, Serialize};
 
-use crate::cell::marked_cell::MarkedCell;
 use crate::cell::prelude::{SimpleCell, UltimateCell};
 use crate::cell::LikeCell;
 use crate::utils::Id;
@@ -14,21 +13,23 @@ pub struct Board<LC, const LEN: usize = 9, const SEP: usize = 3>
 where
     LC: LikeCell,
     [LC; LEN]: Serialize,
+    [Option<Mark>; LEN]: Serialize,
 {
-    cells: [LC; LEN],
-    marked_cells: Vec<MarkedCell>,
-    winner: Option<Winner<Mark>>,
+    pub(crate) cells: [LC; LEN],
+    pub(crate) marked_cells: [Option<Mark>; LEN],
+    pub(crate) winner: Option<Winner<Mark>>,
 }
 
 impl<LC, const LEN: usize, const SEP: usize> Default for Board<LC, LEN, SEP>
 where
     LC: LikeCell,
     [LC; LEN]: Serialize,
+    [Option<Mark>; LEN]: Serialize,
 {
     fn default() -> Self {
         Self {
             cells: create_array(|id| LC::new(id)),
-            marked_cells: Vec::new(),
+            marked_cells: create_array(|_| None),
             winner: None,
         }
     }
@@ -37,6 +38,7 @@ where
 impl<const LEN: usize, const SEP: usize> Board<UltimateCell<SimpleCell>, LEN, SEP>
 where
     [UltimateCell<SimpleCell>; LEN]: Serialize,
+    [Option<Mark>; LEN]: Serialize,
 {
     pub fn mark_nested(&mut self, ultimate_cell_id: Id, cell_id: Id, mark_as: Mark) -> &mut Self {
         self.cells[ultimate_cell_id].mark_cell(cell_id, mark_as);
@@ -48,7 +50,12 @@ impl<LC, const LEN: usize, const SEP: usize> Board<LC, LEN, SEP>
 where
     LC: LikeCell,
     [LC; LEN]: Serialize,
+    [Option<Mark>; LEN]: Serialize,
 {
+    pub fn get_cell(&self, id: Id) -> Option<LC> {
+        self.cells.get(id).cloned()
+    }
+
     pub fn cells_count(&self) -> usize {
         self.cells.len()
     }
@@ -63,8 +70,7 @@ where
 
     pub fn mark_cell(&mut self, cell_id: Id, mark_as: Mark) -> &mut Self {
         self.winner.is_none().then(|| {
-            self.marked_cells
-                .push(MarkedCell::new_marked(cell_id, mark_as));
+            self.marked_cells[cell_id] = Some(mark_as);
         });
         self
     }
@@ -82,6 +88,10 @@ where
     }
 
     pub fn choose_winner(&self) -> Option<Winner<Mark>> {
+        if self.marked_cells_count() < SEP {
+            return None;
+        }
+
         let row = self.try_find_row_by_pattern();
         let col = self.try_find_column_by_pattern();
         let dgl = self.try_find_diagonal_by_pattern();
@@ -153,20 +163,20 @@ where
             .and_then(|marks| Some(Winner::ByDiagonal(marks)))
     }
 
-    pub fn is_all_eq(marked_cells: Vec<MarkedCell>) -> Option<Vec<Mark>> {
-        (marked_cells.len() >= SEP)
-            .then(|| {
-                let marks = marked_cells
-                    .into_iter()
-                    .map(|cell| cell.get_mark_unwrapped())
-                    .collect::<Vec<_>>();
+    pub fn is_all_eq(marks: Vec<Option<Mark>>) -> Option<Vec<Mark>> {
+        let marks = marks.into_iter().collect::<Option<Vec<_>>>();
 
-                let first = marks[0];
-                let len = marks.len();
+        if let Some(marks) = marks {
+            return (marks.len() >= SEP)
+                .then(|| {
+                    let first = marks[0];
+                    let len = marks.len();
 
-                marks.eq(&vec![first; len]).then_some(marks)
-            })
-            .flatten()
+                    marks.eq(&vec![first; len]).then_some(marks)
+                })
+                .flatten();
+        }
+        None
     }
 }
 
@@ -484,7 +494,7 @@ impl Vec2DIndices {
     ///
     /// The caller must ensure that all indices correspond to array fields,
     /// otherwise the index will be outside the range of values ​​accepted by the array.
-    pub fn indices_to_values<'a, T: Clone + Copy>(
+    pub fn indices_to_values<'a, T: Clone + Copy + core::fmt::Debug>(
         indices: Vec<Vec<usize>>,
         array: &'a [T],
     ) -> Vec<Vec<T>> {
