@@ -1,5 +1,5 @@
 import { invoke } from '@tauri-apps/api/core';
-import { action, computed, makeAutoObservable } from "mobx";
+import { makeAutoObservable } from "mobx";
 import { gameState } from './game.state';
 
 type View = "home" | "game";
@@ -8,13 +8,7 @@ export class ViewState {
   mainView: View = "home";
 
   constructor() {
-    makeAutoObservable(this, {
-      isHome: computed,
-      isGame: computed,
-      goHome: action,
-      playVsBot: action,
-      playVsHuman: action
-    })
+    makeAutoObservable(this)
   }
 
   get isHome() {

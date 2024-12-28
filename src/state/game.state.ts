@@ -1,4 +1,4 @@
-import { action, makeAutoObservable, observable } from "mobx";
+import { autorun, makeAutoObservable } from "mobx";
 
 export type Board<LikeCell> = {
   cells: LikeCell[]
@@ -35,14 +35,7 @@ export class GameState {
   board: Board<IUltimateCell> = {} as any;
 
   constructor() {
-    makeAutoObservable(this, {
-      turn: observable,
-      board: observable,
-      reset: action,
-      create_new: action,
-      markCell: action,
-      setTurn: action,
-    })
+    makeAutoObservable(this)
   }
 
   reset() {
@@ -61,8 +54,21 @@ export class GameState {
     this.turn = newTurn
   }
 
-  markCell(ultimateCellId: Id, cellId: Id, mark: Mark) {
-    (this.board as any).cells[ultimateCellId].board.marked_cells.push({ id: cellId, mark })
+  markCell(ultiCellId: Id, cellId: Id, mark: Mark) {
+    const ultimateCell = this.board.cells[ultiCellId];
+    const marked_cells = ultimateCell.board.marked_cells
+
+    this.board.cells[ultiCellId] = {
+      ...ultimateCell,
+      board: {
+        ...ultimateCell.board,
+        marked_cells: [...marked_cells, {
+          id: cellId,
+          mark
+        }]
+      }
+    }
+
   }
 }
 
